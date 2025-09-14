@@ -51,18 +51,19 @@ footer{padding:28px 0;color:#777;font-size:14px}
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
-/* ===== Improved Lightbox ===== */
+/* ===== FIXED LAYOUT & CONTROLS ===== */
 #lightbox {
   position: fixed; inset: 0;
   background: rgba(0,0,0,.82);
-  backdrop-filter: blur(6px) saturate(1.1);
-  display: none;
+  backdrop-filter: blur(6px) saturate(1.05);
+  display: none; opacity: 0;
   align-items: center; justify-content: center;
   z-index: 9999;
-  opacity: 0; transform: scale(.98);
-  transition: opacity .18s ease, transform .18s ease;
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+           max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  transition: opacity .18s ease;
 }
-#lightbox.active { display: flex; opacity: 1; transform: scale(1); }
+#lightbox.active { display: flex; opacity: 1; }
 
 .lb-stage {
   max-width: min(92vw, 1400px);
@@ -72,11 +73,15 @@ footer{padding:28px 0;color:#777;font-size:14px}
   gap: 12px;
   align-items: center; justify-items: center;
 }
+
+/* Prevent cumulative shrink — lock image to the stage and never transform it */
 #lb-image {
   max-width: 100%; max-height: 100%;
+  width: auto; height: auto;
   object-fit: contain;
   border-radius: 12px;
   box-shadow: 0 16px 48px rgba(0,0,0,.35);
+  transform: none !important;
 }
 
 .lb-meta {
@@ -87,59 +92,64 @@ footer{padding:28px 0;color:#777;font-size:14px}
 .lb-caption { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lb-count { opacity: .9; }
 
-/* Controls — large, centered, easy to hit */
+/* Controls: pinned to viewport edges with safe-area padding; no overlap */
 .lb-close, .lb-prev, .lb-next {
-  position: absolute;
+  position: fixed; /* <-- key change: fixed to viewport */
   background: rgba(255,255,255,.12);
-  color: #fff; border: 1px solid rgba(255,255,255,.25);
-  border-radius: 14px; cursor: pointer;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 14px;
+  cursor: pointer;
   backdrop-filter: blur(6px);
-  transition: background .15s ease, transform .08s ease;
+  z-index: 10000; /* above everything */
 }
-.lb-close { top: 14px; right: 14px; width: 44px; height: 44px; font-size: 28px; line-height: 1; }
+
+/* Close button fully on-screen */
+.lb-close {
+  top: max(14px, calc(env(safe-area-inset-top) + 8px));
+  right: max(14px, calc(env(safe-area-inset-right) + 8px));
+  width: 44px; height: 44px; font-size: 28px; line-height: 1;
+}
+
+/* Prev/Next sit mid-left/mid-right, never overlapping */
 .lb-prev, .lb-next {
   top: 50%; transform: translateY(-50%);
-  width: 56px; height: 72px;
-  display: grid; place-items: center;
+  width: 56px; height: 72px; display: grid; place-items: center;
 }
-.lb-prev { left: 14px; }
-.lb-next { right: 14px; }
+.lb-prev { left: max(14px, calc(env(safe-area-inset-left) + 8px)); }
+.lb-next { right: max(14px, calc(env(safe-area-inset-right) + 8px)); }
+
 .lb-prev::before, .lb-next::before {
-  content: ""; display: inline-block; width: 12px; height: 12px; border-top: 2px solid #fff; border-right: 2px solid #fff;
+  content: ""; width: 12px; height: 12px;
+  border-top: 2px solid #fff; border-right: 2px solid #fff;
 }
 .lb-prev::before { transform: rotate(-135deg); }
 .lb-next::before { transform: rotate(45deg); }
-.lb-close:hover, .lb-prev:hover, .lb-next:hover { background: rgba(255,255,255,.22); }
-.lb-prev:active, .lb-next:active, .lb-close:active { transform: translateY(-50%) scale(.98); }
-.lb-close:active { transform: scale(.98); }
 
-/* Thumbnails */
+.lb-close:hover, .lb-prev:hover, .lb-next:hover { background: rgba(255,255,255,.22); }
+/* Remove button scale transforms that can cascade weirdly */
+.lb-prev:active, .lb-next:active, .lb-close:active { transform: translateY(-50%); }
+.lb-close:active { transform: none; }
+
+/* Thumbnails stay clear of controls (bottom center); hidden on small screens */
 .lb-thumbs {
-  position: absolute; left: 0; right: 0; bottom: 10px;
-  display: flex; gap: 12px; padding: 10px 16px;
-  overflow-x: auto; scrollbar-width: thin;
-  justify-content: center;
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: max(10px, env(safe-area-inset-bottom));
+  display: flex; gap: 12px; padding: 8px 12px;
+  overflow-x: auto; scrollbar-width: thin; z-index: 1000;
 }
-.lb-thumbs button {
-  border: 2px solid transparent; border-radius: 8px; padding: 0;
-  background: rgba(255,255,255,.06); cursor: pointer; flex: 0 0 auto;
-}
-.lb-thumbs img {
-  height: 92px; width: auto; display: block; border-radius: 6px;
-  box-shadow: 0 6px 18px rgba(0,0,0,.35);
-}
+.lb-thumbs button { border: 2px solid transparent; border-radius: 8px; padding: 0;
+  background: rgba(255,255,255,.06); cursor: pointer; flex: 0 0 auto; }
+.lb-thumbs img { height: 84px; width: auto; display: block; border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.35); }
 .lb-thumbs button[aria-current="true"] { border-color: #fff; }
 
-/* Backdrop click closes (keep UI on top) */
-#lightbox:before { content: ""; position: absolute; inset: 0; }
-.lb-stage, .lb-close, .lb-prev, .lb-next, .lb-thumbs { position: relative; z-index: 1; }
-
-/* Mobile tweaks */
 @media (max-width: 720px){
   .lb-thumbs { display: none; }
   .lb-prev, .lb-next { width: 48px; height: 60px; }
   #lb-image { border-radius: 10px; }
 }
+
 
 
   
@@ -374,115 +384,30 @@ footer{padding:28px 0;color:#777;font-size:14px}
 </div>
 
 
-  <script>
-(function(){
-  const galleryImgs = Array.from(document.querySelectorAll('.gallery img'));
-  if (!galleryImgs.length) return;
-
-  const items = galleryImgs.map(img => ({
-    src: img.getAttribute('data-full') || img.src,
-    alt: img.alt || '',
-    caption: img.getAttribute('data-caption') || img.alt || ''
-  }));
-
-  const root = document.getElementById('lightbox');
-  const lbImg = document.getElementById('lb-image');
-  const thumbs = document.getElementById('lb-thumbs');
-  const btnClose = root.querySelector('.lb-close');
-  const btnPrev = root.querySelector('.lb-prev');
-  const btnNext = root.querySelector('.lb-next');
-  const lbCaption = document.getElementById('lb-caption');
-  const lbCount = root.querySelector('.lb-count');
-
-  let index = 0, startX = null, lastFocus = null;
-
-  // Build thumbs
-  thumbs.innerHTML = items.map((it,i) =>
-    `<button type="button" role="listitem" aria-label="Open image ${i+1}" data-i="${i}">
-       <img src="${it.src}" alt="">
-     </button>`).join('');
-
-  function preload(i){
-    const n = new Image();
-    n.src = items[(i + items.length) % items.length].src;
-  }
-
   function update(){
-    const it = items[index];
-    lbImg.src = it.src;
-    lbImg.alt = it.alt;
-    lbCaption.textContent = it.caption;
-    lbCount.textContent = `${index+1} / ${items.length}`;
-    thumbs.querySelectorAll('button').forEach((b,i)=> b.setAttribute('aria-current', i===index));
-    const active = thumbs.querySelector(`button[data-i="${index}"]`);
-    if (active) active.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
-    preload(index+1); preload(index-1);
-  }
+  const it = items[index];
 
-  function openAt(i){
-    index = (i + items.length) % items.length;
-    lastFocus = document.activeElement;
-    update();
-    root.classList.add('active');
-    root.setAttribute('aria-hidden','false');
-    document.documentElement.style.overflow='hidden';
-    btnNext.focus({preventScroll:true});
-  }
-  function close(){
-    root.classList.remove('active');
-    root.setAttribute('aria-hidden','true');
-    document.documentElement.style.overflow='';
-    if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus({preventScroll:true});
-  }
-  function prev(){ index = (index-1+items.length)%items.length; update(); }
-  function next(){ index = (index+1)%items.length; update(); }
+  // reset sizing in case any styles were injected by other CSS or transitions
+  lbImg.style.width = '';
+  lbImg.style.height = '';
+  lbImg.style.transform = 'none';
 
-  // Open from grid
-  galleryImgs.forEach((img,i)=>{
-    img.style.cursor='zoom-in';
-    img.addEventListener('click',()=>openAt(i));
+  lbImg.src = it.src;
+  lbImg.alt = it.alt;
+  lbCaption.textContent = it.caption;
+  lbCount.textContent = `${index+1} / ${items.length}`;
+
+  thumbs.querySelectorAll('button').forEach((b,i)=> b.setAttribute('aria-current', i===index));
+  const active = thumbs.querySelector(`button[data-i="${index}"]`);
+  if (active) active.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+
+  // Preload neighbors
+  [index+1, index-1].forEach(i=>{
+    const img = new Image();
+    img.src = items[(i + items.length) % items.length].src;
   });
+}
 
-  // Controls
-  btnClose.addEventListener('click', close);
-  btnPrev.addEventListener('click', prev);
-  btnNext.addEventListener('click', next);
-
-  // Thumbs scrub
-  thumbs.addEventListener('click', (e)=>{
-    const btn = e.target.closest('button[data-i]');
-    if (!btn) return;
-    index = parseInt(btn.dataset.i,10);
-    update();
-  });
-
-  // Backdrop click
-  root.addEventListener('click', (e)=>{
-    const within = e.target.closest('.lb-stage, .lb-close, .lb-prev, .lb-next, .lb-thumbs');
-    if (!within) close();
-  });
-
-  // Keyboard
-  document.addEventListener('keydown', (e)=>{
-    if (!root.classList.contains('active')) return;
-    if (e.key === 'Escape') close();
-    if (e.key === 'ArrowLeft') prev();
-    if (e.key === 'ArrowRight') next();
-  });
-
-  // Touch swipe
-  lbImg.addEventListener('touchstart', (e)=>{ startX = e.touches[0].clientX; }, {passive:true});
-  lbImg.addEventListener('touchmove', (e)=>{
-    if (startX==null) return;
-    const dx = e.touches[0].clientX - startX;
-    if (Math.abs(dx) > 50){ (dx>0?prev:next)(); startX=null; }
-  }, {passive:true});
-  lbImg.addEventListener('touchend', ()=>{ startX=null; });
-
-  // Hide arrows if only one item
-  if (items.length < 2) { btnPrev.style.display='none'; btnNext.style.display='none'; }
-})();
-</script>
 
   
 </body>
