@@ -383,30 +383,155 @@ footer{padding:28px 0;color:#777;font-size:14px}
   <div class="lb-thumbs" id="lb-thumbs" aria-label="Gallery thumbnails" role="list"></div>
 </div>
 
+<script>
+/* ===== Premium Lightbox — Full JS (no deps) =====
+   - Click any .gallery img to open
+   - Prev/Next buttons, keyboard, swipe
+   - Thumbnail scrub, caption, X/Y counter
+   - Safe against cumulative image shrinking
+*/
+(function () {
+  // 1) Collect gallery images (adjust selector if your markup differs)
+  const galleryImgs = Array.from(document.querySelectorAll('.gallery img'));
+  if (!galleryImgs.length) return;
 
-  function update(){
-  const it = items[index];
+  // 2) Normalize items (allows optional data-full + data-caption per image)
+  const items = galleryImgs.map(img => ({
+    src: img.getAttribute('data-full') || img.src,
+    alt: img.alt || '',
+    caption: img.getAttribute('data-caption') || img.alt || ''
+  }));
 
-  // reset sizing in case any styles were injected by other CSS or transitions
-  lbImg.style.width = '';
-  lbImg.style.height = '';
-  lbImg.style.transform = 'none';
+  // 3) Ensure required lightbox DOM exists (id hooks must match CSS/HTML block)
+  const root = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lb-image');
+  const thumbs = document.getElementById('lb-thumbs');
+  const btnClose = root.querySelector('.lb-close');
+  const btnPrev  = root.querySelector('.lb-prev');
+  const btnNext  = root.querySelector('.lb-next');
+  const lbCaption = document.getElementById('lb-caption');
+  const lbCount   = root.querySelector('.lb-count');
 
-  lbImg.src = it.src;
-  lbImg.alt = it.alt;
-  lbCaption.textContent = it.caption;
-  lbCount.textContent = `${index+1} / ${items.length}`;
+  // Guard if the HTML block wasn't included
+  if (!root || !lbImg || !thumbs || !btnClose || !btnPrev || !btnNext || !lbCaption || !lbCount) {
+    console.warn('[Lightbox] Missing required DOM. Make sure you added the HTML block.');
+    return;
+  }
 
-  thumbs.querySelectorAll('button').forEach((b,i)=> b.setAttribute('aria-current', i===index));
-  const active = thumbs.querySelector(`button[data-i="${index}"]`);
-  if (active) active.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+  // 4) Build thumbnails
+  thumbs.innerHTML = items.map((it, i) => (
+    `<button type="button" role="listitem" aria-label="Open image ${i+1}" data-i="${i}">
+       <img src="${it.src}" alt="">
+     </button>`
+  )).join('');
 
-  // Preload neighbors
-  [index+1, index-1].forEach(i=>{
+  let index = 0;
+  let startX = null;
+  let lastFocus = null;
+
+  function preload(idx) {
     const img = new Image();
-    img.src = items[(i + items.length) % items.length].src;
+    img.src = items[(idx + items.length) % items.length].src;
+  }
+
+  function update() {
+    const it = items[index];
+
+    // Reset any accidental inline sizing/transforms (prevents ratchet shrinking)
+    lbImg.style.width = '';
+    lbImg.style.height = '';
+    lbImg.style.transform = 'none';
+
+    lbImg.src = it.src;
+    lbImg.alt = it.alt;
+    lbCaption.textContent = it.caption || '';
+    lbCount.textContent = `${index + 1} / ${items.length}`;
+
+    // Mark current thumbnail and keep it centered in view
+    thumbs.querySelectorAll('button').forEach((b, i) => {
+      b.setAttribute('aria-current', i === index ? 'true' : 'false');
+    });
+    const active = thumbs.querySelector(`button[data-i="${index}"]`);
+    if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+
+    // Preload neighbors for snappy next/prev
+    preload(index + 1); preload(index - 1);
+  }
+
+  function openAt(i) {
+    index = (i + items.length) % items.length;
+    lastFocus = document.activeElement;
+    update();
+    root.classList.add('active');
+    root.setAttribute('aria-hidden', 'false');
+    // Prevent background scroll
+    document.documentElement.style.overflow = 'hidden';
+    // Focus a control for a11y/keyboard
+    btnNext.focus({ preventScroll: true });
+  }
+
+  function close() {
+    root.classList.remove('active');
+    root.setAttribute('aria-hidden', 'true');
+    document.documentElement.style.overflow = '';
+    if (lastFocus && typeof lastFocus.focus === 'function') {
+      lastFocus.focus({ preventScroll: true });
+    }
+  }
+
+  function prev() { index = (index - 1 + items.length) % items.length; update(); }
+  function next() { index = (index + 1) % items.length; update(); }
+
+  // 5) Open from grid
+  galleryImgs.forEach((img, i) => {
+    img.style.cursor = 'zoom-in';
+    img.addEventListener('click', () => openAt(i));
   });
-}
+
+  // 6) Controls
+  btnClose.addEventListener('click', close);
+  btnPrev .addEventListener('click', prev);
+  btnNext .addEventListener('click', next);
+
+  // 7) Thumbnails scrub
+  thumbs.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-i]');
+    if (!btn) return;
+    index = parseInt(btn.dataset.i, 10);
+    update();
+  });
+
+  // 8) Backdrop click closes (ignore clicks within UI)
+  root.addEventListener('click', (e) => {
+    const withinUI = e.target.closest('.lb-stage, .lb-close, .lb-prev, .lb-next, .lb-thumbs');
+    if (!withinUI) close();
+  });
+
+  // 9) Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (!root.classList.contains('active')) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowLeft') prev();
+    if (e.key === 'ArrowRight') next();
+  });
+
+  // 10) Touch swipe (basic)
+  lbImg.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+  lbImg.addEventListener('touchmove', (e) => {
+    if (startX === null) return;
+    const dx = e.touches[0].clientX - startX;
+    if (Math.abs(dx) > 50) { (dx > 0 ? prev : next)(); startX = null; }
+  }, { passive: true });
+  lbImg.addEventListener('touchend', () => { startX = null; });
+
+  // 11) Hide arrows if only one item
+  if (items.length < 2) {
+    btnPrev.style.display = 'none';
+    btnNext.style.display = 'none';
+  }
+})();
+</script>
+
 
 
   
