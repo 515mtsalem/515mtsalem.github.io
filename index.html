@@ -51,7 +51,20 @@ footer{padding:28px 0;color:#777;font-size:14px}
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
-/* ===== FIXED LAYOUT & CONTROLS ===== */
+/* --- Single-image gallery preview --- */
+.gallery-launch {
+  all: unset; display: block; position: relative; cursor: zoom-in;
+  border-radius: 14px; overflow: hidden; border: 1px solid #e8eaed;
+  box-shadow: 0 6px 20px rgba(0,0,0,.08);
+}
+.gallery-launch img { width: 100%; height: auto; display: block; }
+.gallery-badge {
+  position: absolute; right: 12px; bottom: 12px;
+  background: rgba(17,17,17,.8); color:#fff; font-size:14px;
+  padding: 8px 12px; border-radius: 999px; backdrop-filter: blur(4px);
+}
+
+/* --- Lightbox --- */
 #lightbox {
   position: fixed; inset: 0;
   background: rgba(0,0,0,.82);
@@ -73,82 +86,55 @@ footer{padding:28px 0;color:#777;font-size:14px}
   gap: 12px;
   align-items: center; justify-items: center;
 }
-
-/* Prevent cumulative shrink — lock image to the stage and never transform it */
 #lb-image {
   max-width: 100%; max-height: 100%;
-  width: auto; height: auto;
   object-fit: contain;
   border-radius: 12px;
   box-shadow: 0 16px 48px rgba(0,0,0,.35);
-  transform: none !important;
+  transform: none !important;  /* prevent cumulative shrink */
 }
-
 .lb-meta {
   width: 100%;
   display: flex; gap: 12px; align-items: center; justify-content: space-between;
   color: #e8e8e8; font-size: 14px;
 }
 .lb-caption { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.lb-count { opacity: .9; }
+.lb-count   { opacity: .9; }
 
-/* Controls: pinned to viewport edges with safe-area padding; no overlap */
+/* Controls fixed to viewport (won’t overlap or drift) */
 .lb-close, .lb-prev, .lb-next {
-  position: fixed; /* <-- key change: fixed to viewport */
+  position: fixed;
   background: rgba(255,255,255,.12);
-  color: #fff;
-  border: 1px solid rgba(255,255,255,.25);
-  border-radius: 14px;
-  cursor: pointer;
-  backdrop-filter: blur(6px);
-  z-index: 10000; /* above everything */
+  color:#fff; border: 1px solid rgba(255,255,255,.25);
+  border-radius: 14px; cursor: pointer; backdrop-filter: blur(6px);
+  z-index: 10000;
 }
-
-/* Close button fully on-screen */
 .lb-close {
   top: max(14px, calc(env(safe-area-inset-top) + 8px));
   right: max(14px, calc(env(safe-area-inset-right) + 8px));
   width: 44px; height: 44px; font-size: 28px; line-height: 1;
 }
-
-/* Prev/Next sit mid-left/mid-right, never overlapping */
 .lb-prev, .lb-next {
   top: 50%; transform: translateY(-50%);
   width: 56px; height: 72px; display: grid; place-items: center;
 }
-.lb-prev { left: max(14px, calc(env(safe-area-inset-left) + 8px)); }
+.lb-prev { left:  max(14px, calc(env(safe-area-inset-left) + 8px)); }
 .lb-next { right: max(14px, calc(env(safe-area-inset-right) + 8px)); }
-
 .lb-prev::before, .lb-next::before {
   content: ""; width: 12px; height: 12px;
   border-top: 2px solid #fff; border-right: 2px solid #fff;
 }
 .lb-prev::before { transform: rotate(-135deg); }
 .lb-next::before { transform: rotate(45deg); }
-
 .lb-close:hover, .lb-prev:hover, .lb-next:hover { background: rgba(255,255,255,.22); }
-/* Remove button scale transforms that can cascade weirdly */
-.lb-prev:active, .lb-next:active, .lb-close:active { transform: translateY(-50%); }
+.lb-prev:active, .lb-next:active { transform: translateY(-50%); }
 .lb-close:active { transform: none; }
 
-/* Thumbnails stay clear of controls (bottom center); hidden on small screens */
-.lb-thumbs {
-  position: fixed; left: 50%; transform: translateX(-50%);
-  bottom: max(10px, env(safe-area-inset-bottom));
-  display: flex; gap: 12px; padding: 8px 12px;
-  overflow-x: auto; scrollbar-width: thin; z-index: 1000;
-}
-.lb-thumbs button { border: 2px solid transparent; border-radius: 8px; padding: 0;
-  background: rgba(255,255,255,.06); cursor: pointer; flex: 0 0 auto; }
-.lb-thumbs img { height: 84px; width: auto; display: block; border-radius: 6px;
-  box-shadow: 0 6px 18px rgba(0,0,0,.35); }
-.lb-thumbs button[aria-current="true"] { border-color: #fff; }
-
 @media (max-width: 720px){
-  .lb-thumbs { display: none; }
   .lb-prev, .lb-next { width: 48px; height: 60px; }
   #lb-image { border-radius: 10px; }
 }
+
 
 
 
@@ -208,16 +194,13 @@ footer{padding:28px 0;color:#777;font-size:14px}
     </section>
 
     <section id="gallery">
-      <h2>Gallery</h2>
-      <div class="gallery">
-        <img src="images/gallery_1.jpg" alt="Photo 1">
-        <img src="images/gallery_2.jpg" alt="Photo 2">
-        <img src="images/gallery_3.jpg" alt="Photo 3">
-        <img src="images/gallery_4.jpg" alt="Photo 4">
-        <img src="images/gallery_5.jpg" alt="Photo 5">
-        <img src="images/gallery_6.jpg" alt="Photo 6">
-      </div>
-    </section>
+  <h2>Gallery</h2>
+  <button id="openGallery" class="gallery-launch" aria-label="Open photo gallery">
+    <img src="images/gallery_1.jpg" alt="Open gallery">
+    <span class="gallery-badge">View 249 Photos</span>
+  </button>
+</section>
+
 
 <section id="video">
   <h2>Video Tour</h2>
@@ -366,171 +349,131 @@ footer{padding:28px 0;color:#777;font-size:14px}
     </footer>
   </main>
 
-<!-- Lightbox Modal -->
-<div id="lightbox" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="lb-caption">
+<!-- Lightbox -->
+<div id="lightbox" role="dialog" aria-modal="true" aria-hidden="true">
   <button class="lb-close" aria-label="Close (Esc)">&times;</button>
-  <button class="lb-prev" aria-label="Previous (←)"></button>
-  <button class="lb-next" aria-label="Next (→)"></button>
+  <button class="lb-prev"  aria-label="Previous (←)"></button>
+  <button class="lb-next"  aria-label="Next (→)"></button>
 
   <div class="lb-stage">
-    <img id="lb-image" alt="" />
+    <img id="lb-image" alt="">
     <div class="lb-meta">
       <div id="lb-caption" class="lb-caption"></div>
-      <div class="lb-count" aria-live="polite"></div>
+      <div id="lb-count"   class="lb-count" aria-live="polite"></div>
     </div>
   </div>
-
-  <div class="lb-thumbs" id="lb-thumbs" aria-label="Gallery thumbnails" role="list"></div>
 </div>
 
+
 <script>
-/* ===== Premium Lightbox — Full JS (no deps) =====
-   - Click any .gallery img to open
-   - Prev/Next buttons, keyboard, swipe
-   - Thumbnail scrub, caption, X/Y counter
-   - Safe against cumulative image shrinking
+/* ===== Single-Preview + Lazy Lightbox (no deps) =====
+   - Shows ONE preview image in the gallery
+   - Lightbox cycles through N images with Next/Prev
+   - Lazy loads: only current image is fetched; neighbors preloaded
+   - Keyboard + swipe; counter X / N
 */
-(function () {
-  // 1) Collect gallery images (adjust selector if your markup differs)
-  const galleryImgs = Array.from(document.querySelectorAll('.gallery img'));
-  if (!galleryImgs.length) return;
 
-  // 2) Normalize items (allows optional data-full + data-caption per image)
-  const items = galleryImgs.map(img => ({
-    src: img.getAttribute('data-full') || img.src,
-    alt: img.alt || '',
-    caption: img.getAttribute('data-caption') || img.alt || ''
-  }));
+(function(){
+  // ---- CONFIG ----
+  const TOTAL = 249;
+  const PATH = n => `images/gallery_${n}.jpg`;     // 1-based filenames
+  const CAPTION = n => `Photo ${n}`;               // optional per-image caption
 
-  // 3) Ensure required lightbox DOM exists (id hooks must match CSS/HTML block)
-  const root = document.getElementById('lightbox');
-  const lbImg = document.getElementById('lb-image');
-  const thumbs = document.getElementById('lb-thumbs');
+  // ---- DOM ----
+  const openBtn  = document.getElementById('openGallery');
+  const root     = document.getElementById('lightbox');
+  const lbImg    = document.getElementById('lb-image');
+  const lbCap    = document.getElementById('lb-caption');
+  const lbCount  = document.getElementById('lb-count');
   const btnClose = root.querySelector('.lb-close');
   const btnPrev  = root.querySelector('.lb-prev');
   const btnNext  = root.querySelector('.lb-next');
-  const lbCaption = document.getElementById('lb-caption');
-  const lbCount   = root.querySelector('.lb-count');
 
-  // Guard if the HTML block wasn't included
-  if (!root || !lbImg || !thumbs || !btnClose || !btnPrev || !btnNext || !lbCaption || !lbCount) {
-    console.warn('[Lightbox] Missing required DOM. Make sure you added the HTML block.');
-    return;
-  }
+  if (!openBtn || !root || !lbImg || !lbCap || !lbCount) return;
 
-  // 4) Build thumbnails
-  thumbs.innerHTML = items.map((it, i) => (
-    `<button type="button" role="listitem" aria-label="Open image ${i+1}" data-i="${i}">
-       <img src="${it.src}" alt="">
-     </button>`
-  )).join('');
-
-  let index = 0;
+  // ---- STATE ----
+  let index = 1;         // 1..TOTAL (start on first)
   let startX = null;
   let lastFocus = null;
 
-  function preload(idx) {
-    const img = new Image();
-    img.src = items[(idx + items.length) % items.length].src;
+  // ---- HELPERS ----
+  function clamp(n){
+    if (n < 1) return TOTAL;
+    if (n > TOTAL) return 1;
+    return n;
   }
-
-  function update() {
-    const it = items[index];
-
-    // Reset any accidental inline sizing/transforms (prevents ratchet shrinking)
+  function preload(n){
+    const img = new Image();
+    img.src = PATH(clamp(n));
+  }
+  function update(){
+    // reset any stray transforms/sizes to avoid cumulative shrink
     lbImg.style.width = '';
     lbImg.style.height = '';
     lbImg.style.transform = 'none';
 
-    lbImg.src = it.src;
-    lbImg.alt = it.alt;
-    lbCaption.textContent = it.caption || '';
-    lbCount.textContent = `${index + 1} / ${items.length}`;
+    const src = PATH(index);
+    lbImg.src = src;
+    lbImg.alt = CAPTION(index);
+    lbCap.textContent = CAPTION(index);
+    lbCount.textContent = `${index} / ${TOTAL}`;
 
-    // Mark current thumbnail and keep it centered in view
-    thumbs.querySelectorAll('button').forEach((b, i) => {
-      b.setAttribute('aria-current', i === index ? 'true' : 'false');
-    });
-    const active = thumbs.querySelector(`button[data-i="${index}"]`);
-    if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-
-    // Preload neighbors for snappy next/prev
-    preload(index + 1); preload(index - 1);
+    // Preload neighbors for snappy nav
+    preload(index + 1);
+    preload(index - 1);
   }
-
-  function openAt(i) {
-    index = (i + items.length) % items.length;
+  function openAt(n){
+    index = clamp(n);
     lastFocus = document.activeElement;
     update();
     root.classList.add('active');
-    root.setAttribute('aria-hidden', 'false');
-    // Prevent background scroll
+    root.setAttribute('aria-hidden','false');
     document.documentElement.style.overflow = 'hidden';
-    // Focus a control for a11y/keyboard
-    btnNext.focus({ preventScroll: true });
+    btnNext.focus({preventScroll:true});
   }
-
-  function close() {
+  function close(){
     root.classList.remove('active');
-    root.setAttribute('aria-hidden', 'true');
+    root.setAttribute('aria-hidden','true');
     document.documentElement.style.overflow = '';
     if (lastFocus && typeof lastFocus.focus === 'function') {
-      lastFocus.focus({ preventScroll: true });
+      lastFocus.focus({preventScroll:true});
     }
   }
+  function prev(){ index = clamp(index - 1); update(); }
+  function next(){ index = clamp(index + 1); update(); }
 
-  function prev() { index = (index - 1 + items.length) % items.length; update(); }
-  function next() { index = (index + 1) % items.length; update(); }
+  // ---- EVENTS ----
+  openBtn.addEventListener('click', () => openAt(1));
 
-  // 5) Open from grid
-  galleryImgs.forEach((img, i) => {
-    img.style.cursor = 'zoom-in';
-    img.addEventListener('click', () => openAt(i));
-  });
-
-  // 6) Controls
   btnClose.addEventListener('click', close);
   btnPrev .addEventListener('click', prev);
   btnNext .addEventListener('click', next);
 
-  // 7) Thumbnails scrub
-  thumbs.addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-i]');
-    if (!btn) return;
-    index = parseInt(btn.dataset.i, 10);
-    update();
+  // backdrop click closes (ignore clicks within stage/controls)
+  root.addEventListener('click', (e)=>{
+    const within = e.target.closest('.lb-stage, .lb-close, .lb-prev, .lb-next');
+    if (!within) close();
   });
 
-  // 8) Backdrop click closes (ignore clicks within UI)
-  root.addEventListener('click', (e) => {
-    const withinUI = e.target.closest('.lb-stage, .lb-close, .lb-prev, .lb-next, .lb-thumbs');
-    if (!withinUI) close();
-  });
-
-  // 9) Keyboard navigation
-  document.addEventListener('keydown', (e) => {
+  // keyboard
+  document.addEventListener('keydown', (e)=>{
     if (!root.classList.contains('active')) return;
     if (e.key === 'Escape') close();
-    if (e.key === 'ArrowLeft') prev();
+    if (e.key === 'ArrowLeft')  prev();
     if (e.key === 'ArrowRight') next();
   });
 
-  // 10) Touch swipe (basic)
-  lbImg.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
-  lbImg.addEventListener('touchmove', (e) => {
-    if (startX === null) return;
+  // touch swipe
+  lbImg.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive:true});
+  lbImg.addEventListener('touchmove',  e => {
+    if (startX == null) return;
     const dx = e.touches[0].clientX - startX;
-    if (Math.abs(dx) > 50) { (dx > 0 ? prev : next)(); startX = null; }
-  }, { passive: true });
+    if (Math.abs(dx) > 50) { (dx>0 ? prev : next)(); startX = null; }
+  }, {passive:true});
   lbImg.addEventListener('touchend', () => { startX = null; });
-
-  // 11) Hide arrows if only one item
-  if (items.length < 2) {
-    btnPrev.style.display = 'none';
-    btnNext.style.display = 'none';
-  }
 })();
 </script>
+
 
 
 
