@@ -366,21 +366,270 @@ footer{padding:28px 0;color:#777;font-size:14px}
 
 
 <script>
-/* ===== Single-Preview + Lazy Lightbox (no deps) =====
-   - Shows ONE preview image in the gallery
-   - Lightbox cycles through N images with Next/Prev
-   - Lazy loads: only current image is fetched; neighbors preloaded
-   - Keyboard + swipe; counter X / N
+/* === Single Preview + Lazy Lightbox for explicit file list (no deps) ===
+   - One on-page preview, click to open
+   - Next/Prev through whole list
+   - Lazy: only current image loads; neighbors are preloaded
+   - Works with filenames that contain spaces ("Medium", " 2", " 4")
 */
 
 (function(){
-  // ---- CONFIG ----
-  const TOTAL = 249;
-  const PATH = n => `images/gallery_${n}.jpg`;     // 1-based filenames
-  const CAPTION = n => `Photo ${n}`;               // optional per-image caption
+  // ---- Your files (exact names), inside the Images/ folder ----
+  const FILES = [
+"IMG_0337 Medium.jpeg",
+"IMG_0340 Medium.jpeg",
+"IMG_0341 Medium.jpeg",
+"IMG_0343 Medium.jpeg",
+"IMG_0347 Medium.jpeg",
+"IMG_0349 Medium.jpeg",
+"IMG_0362 Medium.jpeg",
+"IMG_0443 Medium.jpeg",
+"IMG_0452 Medium.jpeg",
+"IMG_0453 Medium.jpeg",
+"IMG_0455 Medium.jpeg",
+"IMG_0459 Medium.jpeg",
+"IMG_0461 Medium.jpeg",
+"IMG_0470 Medium.jpeg",
+"IMG_0471 Medium.jpeg",
+"IMG_0474 Medium.jpeg",
+"IMG_0477 Medium.jpeg",
+"IMG_0478 Medium.jpeg",
+"IMG_0484 Medium.jpeg",
+"IMG_0487 Medium.jpeg",
+"IMG_0488 Medium.jpeg",
+"IMG_0491 Medium.jpeg",
+"IMG_0494 Medium.jpeg",
+"IMG_0495 Medium.jpeg",
+"IMG_0498 Medium.jpeg",
+"IMG_0499 Medium.jpeg",
+"IMG_0500 Medium.jpeg",
+"IMG_0501 Medium.jpeg",
+"IMG_0502 Medium.jpeg",
+"IMG_0503 Medium.jpeg",
+"IMG_0504 Medium.jpeg",
+"IMG_0505 Medium.jpeg",
+"IMG_0506 Medium.jpeg",
+"IMG_0507 Medium.jpeg",
+"IMG_0508 Medium.jpeg",
+"IMG_0509 Medium.jpeg",
+"IMG_0510 Medium.jpeg",
+"IMG_0517 Medium.jpeg",
+"IMG_0518 Medium.jpeg",
+"IMG_0519 Medium.jpeg",
+"IMG_0520 Medium.jpeg",
+"IMG_0521 Medium.jpeg",
+"IMG_0522 Medium.jpeg",
+"IMG_0523 Medium.jpeg",
+"IMG_0524 Medium.jpeg",
+"IMG_0525 Medium.jpeg",
+"IMG_0526 Medium.jpeg",
+"IMG_0527 Medium.jpeg",
+"IMG_0528 Medium.jpeg",
+"IMG_0529 Medium.jpeg",
+"IMG_0530 Medium.jpeg",
+"IMG_0531 Medium.jpeg",
+"IMG_0532 Medium.jpeg",
+"IMG_0533 Medium.jpeg",
+"IMG_0534 Medium.jpeg",
+"IMG_0535 Medium.jpeg",
+"IMG_0536 Medium.jpeg",
+"IMG_0537 Medium.jpeg",
+"IMG_0538 Medium.jpeg",
+"IMG_0539 Medium.jpeg",
+"IMG_0541 Medium.jpeg",
+"IMG_0552 Medium.jpeg",
+"IMG_0553 Medium.jpeg",
+"IMG_0559 Medium.jpeg",
+"IMG_0560 Medium.jpeg",
+"IMG_0561 Medium.jpeg",
+"IMG_0562 Medium.jpeg",
+"IMG_0566 Medium.jpeg",
+"IMG_0567 Medium.jpeg",
+"IMG_0568 Medium.jpeg",
+"IMG_0571 Medium.jpeg",
+"IMG_0573 Medium.jpeg",
+"IMG_0574 Medium.jpeg",
+"IMG_0575 Medium.jpeg",
+"IMG_0577 Medium.jpeg",
+"IMG_0580 Medium.jpeg",
+"IMG_0582 Medium.jpeg",
+"IMG_0583 Medium.jpeg",
+"IMG_0584 Medium.jpeg",
+"IMG_0585 Medium.jpeg",
+"IMG_0587 Medium.jpeg",
+"IMG_0588 Medium.jpeg",
+"IMG_0589 Medium.jpeg",
+"IMG_0590 Medium.jpeg",
+"IMG_0591 Medium.jpeg",
+"IMG_0592 Medium.jpeg",
+"IMG_0593 Medium.jpeg",
+"IMG_0594 Medium.jpeg",
+"IMG_0595 Medium.jpeg",
+"IMG_0596 Medium.jpeg",
+"IMG_0597 Medium.jpeg",
+"IMG_0598 Medium.jpeg",
+"IMG_0599 Medium.jpeg",
+"IMG_0600 Medium.jpeg",
+"IMG_0601 Medium.jpeg",
+"IMG_0602 Medium.jpeg",
+"IMG_0621 Medium.jpeg",
+"IMG_0624 Medium.jpeg",
+"IMG_0625 Medium.jpeg",
+"IMG_0626 Medium.jpeg",
+"IMG_0631 Medium.jpeg",
+"IMG_0634 Medium.jpeg",
+"IMG_0635 Medium.jpeg",
+"IMG_0636 Medium.jpeg",
+"IMG_0639 Medium.jpeg",
+"IMG_0646 Medium.jpeg",
+"IMG_0649 Medium.jpeg",
+"IMG_0652 Medium.jpeg",
+"IMG_0653 Medium.jpeg",
+"IMG_0654 Medium.jpeg",
+"IMG_0655 Medium.jpeg",
+"IMG_0662 Medium.jpeg",
+"IMG_0666 Medium.jpeg",
+"IMG_0667 Medium.jpeg",
+"IMG_0668 Medium.jpeg",
+"IMG_0669 Medium.jpeg",
+"IMG_0670 Medium.jpeg",
+"IMG_0671 Medium.jpeg",
+"IMG_0672 Medium.jpeg",
+"IMG_0673 Medium.jpeg",
+"IMG_0674 Medium.jpeg",
+"IMG_0675 Medium.jpeg",
+"IMG_0676 Medium.jpeg",
+"IMG_0677 Medium.jpeg",
+"IMG_0678 Medium.jpeg",
+"IMG_0684 Medium.jpeg",
+"IMG_0685 Medium.jpeg",
+"IMG_0687 Medium.jpeg",
+"IMG_0689 Medium.jpeg",
+"IMG_0690 Medium.jpeg",
+"IMG_0692 Medium.jpeg",
+"IMG_0693 Medium.jpeg",
+"IMG_0694 Medium.jpeg",
+"IMG_0695 Medium.jpeg",
+"IMG_0709 Medium.jpeg",
+"IMG_0710 Medium.jpeg",
+"IMG_0718 Medium.jpeg",
+"IMG_0721 Medium.jpeg",
+"IMG_0723 Medium.jpeg",
+"IMG_0727 Medium.jpeg",
+"IMG_0728 Medium.jpeg",
+"IMG_0729 Medium.jpeg",
+"IMG_0730 Medium.jpeg",
+"IMG_0731 Medium.jpeg",
+"IMG_0732 Medium.jpeg",
+"IMG_0733 Medium.jpeg",
+"IMG_0736 Medium.jpeg",
+"IMG_0737 Medium.jpeg",
+"IMG_0738 Medium.jpeg",
+"IMG_0739 Medium.jpeg",
+"IMG_0740 Medium.jpeg",
+"IMG_0741 Medium.jpeg",
+"IMG_0742 Medium.jpeg",
+"IMG_0743 Medium.jpeg",
+"IMG_0744 Medium.jpeg",
+"IMG_0745 Medium.jpeg",
+"IMG_0746 Medium.jpeg",
+"IMG_0747 Medium.jpeg",
+"IMG_0748 Medium.jpeg",
+"IMG_0749 Medium.jpeg",
+"IMG_0750 Medium.jpeg",
+"IMG_0751 Medium.jpeg",
+"IMG_0752 Medium.jpeg",
+"IMG_0753 Medium.jpeg",
+"IMG_0754 Medium.jpeg",
+"IMG_0755 Medium.jpeg",
+"IMG_0756 Medium.jpeg",
+"IMG_0758 Medium.jpeg",
+"IMG_0759 Medium.jpeg",
+"IMG_0760 Medium.jpeg",
+"IMG_0761 Medium.jpeg",
+"IMG_0762 Medium.jpeg",
+"IMG_0763 Medium.jpeg",
+"IMG_0768 Medium.jpeg",
+"IMG_0769 Medium.jpeg",
+"IMG_0770 Medium.jpeg",
+"IMG_0771 Medium.jpeg",
+"IMG_0772 Medium.jpeg",
+"IMG_0774 Medium.jpeg",
+"IMG_0775 Medium.jpeg",
+"IMG_0780 Medium.jpeg",
+"IMG_0783 Medium.jpeg",
+"IMG_0786 Medium.jpeg",
+"IMG_0814 Medium.jpeg",
+"IMG_0821 2 Medium.jpeg",
+"IMG_0826 2 Medium.jpeg",
+"IMG_0827 2 Medium.jpeg",
+"IMG_0828 2 Medium.jpeg",
+"IMG_0830 2 Medium.jpeg",
+"IMG_0836 2 Medium.jpeg",
+"IMG_0837 2 Medium.jpeg",
+"IMG_0841 2 Medium.jpeg",
+"IMG_0845 2 Medium.jpeg",
+"IMG_0855 Medium.jpeg",
+"IMG_0856 Medium.jpeg",
+"IMG_0857 Medium.jpeg",
+"IMG_0858 Medium.jpeg",
+"IMG_0863 Medium.jpeg",
+"IMG_0864 Medium.jpeg",
+"IMG_0865 Medium.jpeg",
+"IMG_0868 Medium.jpeg",
+"IMG_0870 Medium.jpeg",
+"IMG_0872 Medium.jpeg",
+"IMG_0874 Medium.jpeg",
+"IMG_0875 Medium.jpeg",
+"IMG_0882 Medium.jpeg",
+"IMG_0888 2 Medium.jpeg",
+"IMG_0889 Medium.jpeg",
+"IMG_0890 2 Medium.jpeg",
+"IMG_0891 2 Medium.jpeg",
+"IMG_0893 4 Medium.jpeg",
+"IMG_0894 2 Medium.jpeg",
+"IMG_0895 2 Medium.jpeg",
+"IMG_0897 2 Medium.jpeg",
+"IMG_0898 2 Medium.jpeg",
+"IMG_0899 4 Medium.jpeg",
+"IMG_0900 Medium.jpeg",
+"IMG_0901 Medium.jpeg",
+"IMG_0904 Medium.jpeg",
+"IMG_0905 Medium.jpeg",
+"IMG_0906 Medium.jpeg",
+"IMG_0907 Medium.jpeg",
+"IMG_0908 Medium.jpeg",
+"IMG_0909 Medium.jpeg",
+"IMG_0910 Medium.jpeg",
+"IMG_0911 Medium.jpeg",
+"IMG_0913 Medium.jpeg",
+"IMG_0914 Medium.jpeg",
+"IMG_0915 Medium.jpeg",
+"IMG_0916 Medium.jpeg",
+"IMG_0917 Medium.jpeg",
+"IMG_0918 Medium.jpeg",
+"IMG_0919 Medium.jpeg",
+"IMG_0920 Medium.jpeg",
+"IMG_0921 Medium.jpeg",
+"IMG_0922 Medium.jpeg",
+"IMG_0928 Medium.jpeg",
+"IMG_0929 Medium.jpeg",
+"IMG_0930 Medium.jpeg",
+"IMG_0931 Medium.jpeg",
+"IMG_0932 Medium.jpeg",
+"IMG_0933 Medium.jpeg",
+"IMG_0935 Medium.jpeg",
+"IMG_0936 Medium.jpeg",
+"IMG_0941 Medium.jpeg",
+"IMG_0945 Medium.jpeg"
+  ];
 
-  // ---- DOM ----
-  const openBtn  = document.getElementById('openGallery');
+  // Build full URLs with correct folder + URL-encoding for spaces
+  const URLS = FILES.map(name => encodeURI(`Images/${name}`));
+  const TOTAL = URLS.length;
+
+  // ---- Hook up preview + lightbox ----
+  const openBtn  = document.getElementById('openGallery');   // from the single-image preview
   const root     = document.getElementById('lightbox');
   const lbImg    = document.getElementById('lb-image');
   const lbCap    = document.getElementById('lb-caption');
@@ -389,62 +638,65 @@ footer{padding:28px 0;color:#777;font-size:14px}
   const btnPrev  = root.querySelector('.lb-prev');
   const btnNext  = root.querySelector('.lb-next');
 
-  if (!openBtn || !root || !lbImg || !lbCap || !lbCount) return;
+  // If the single preview exists, set it to the first image automatically
+  if (openBtn) {
+    const previewImg = openBtn.querySelector('img');
+    if (previewImg) previewImg.src = URLS[0];
+  }
 
-  // ---- STATE ----
-  let index = 1;         // 1..TOTAL (start on first)
+  // State
+  let idx = 0;         // 0..TOTAL-1
   let startX = null;
   let lastFocus = null;
 
-  // ---- HELPERS ----
-  function clamp(n){
-    if (n < 1) return TOTAL;
-    if (n > TOTAL) return 1;
-    return n;
-  }
-  function preload(n){
-    const img = new Image();
-    img.src = PATH(clamp(n));
-  }
-  function update(){
-    // reset any stray transforms/sizes to avoid cumulative shrink
+  // Helpers
+  const captionFromName = (url) => {
+    try {
+      const n = decodeURI(url).split('/').pop().replace(/\.\w+$/, '');
+      return n; // e.g., "IMG_0821 2 Medium"
+    } catch { return ''; }
+  };
+  const wrap = (n) => (n + TOTAL) % TOTAL;
+  const preload = (i) => { const im = new Image(); im.src = URLS[wrap(i)]; };
+
+  function update() {
+    // prevent cumulative transforms/sizing
     lbImg.style.width = '';
     lbImg.style.height = '';
     lbImg.style.transform = 'none';
 
-    const src = PATH(index);
-    lbImg.src = src;
-    lbImg.alt = CAPTION(index);
-    lbCap.textContent = CAPTION(index);
-    lbCount.textContent = `${index} / ${TOTAL}`;
+    lbImg.src = URLS[idx];
+    lbImg.alt = captionFromName(URLS[idx]);
+    lbCap.textContent = captionFromName(URLS[idx]);
+    lbCount.textContent = `${idx + 1} / ${TOTAL}`;
 
-    // Preload neighbors for snappy nav
-    preload(index + 1);
-    preload(index - 1);
+    // Preload neighbors
+    preload(idx + 1);
+    preload(idx - 1);
   }
-  function openAt(n){
-    index = clamp(n);
+
+  function openAt(i) {
+    idx = wrap(i);
     lastFocus = document.activeElement;
     update();
     root.classList.add('active');
-    root.setAttribute('aria-hidden','false');
+    root.setAttribute('aria-hidden', 'false');
     document.documentElement.style.overflow = 'hidden';
     btnNext.focus({preventScroll:true});
   }
-  function close(){
+  function close() {
     root.classList.remove('active');
-    root.setAttribute('aria-hidden','true');
+    root.setAttribute('aria-hidden', 'true');
     document.documentElement.style.overflow = '';
     if (lastFocus && typeof lastFocus.focus === 'function') {
       lastFocus.focus({preventScroll:true});
     }
   }
-  function prev(){ index = clamp(index - 1); update(); }
-  function next(){ index = clamp(index + 1); update(); }
+  function prev(){ idx = wrap(idx - 1); update(); }
+  function next(){ idx = wrap(idx + 1); update(); }
 
-  // ---- EVENTS ----
-  openBtn.addEventListener('click', () => openAt(1));
-
+  // Events
+  if (openBtn) openBtn.addEventListener('click', () => openAt(0));
   btnClose.addEventListener('click', close);
   btnPrev .addEventListener('click', prev);
   btnNext .addEventListener('click', next);
@@ -473,6 +725,7 @@ footer{padding:28px 0;color:#777;font-size:14px}
   lbImg.addEventListener('touchend', () => { startX = null; });
 })();
 </script>
+
 
 
 
