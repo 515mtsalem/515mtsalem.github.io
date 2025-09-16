@@ -130,6 +130,18 @@ footer{padding:28px 0;color:#777;font-size:14px}
 .lb-prev:active, .lb-next:active { transform: translateY(-50%); }
 .lb-close:active { transform: none; }
 
+  /* 1) Make sure padding is included in width on everything (incl. pseudos) */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* 2) Prevent the fixed lightbox from exceeding the viewport */
+#lightbox { box-sizing: border-box; }               /* include padding in width */
+
+/* 3) Use dynamic viewport units that exclude the scrollbar width */
+.lb-stage { max-width: min(92dvw, 1400px); }        /* d vw instead of vw */
+
+/* 4) Belt-and-suspenders: never allow horizontal scroll */
+html { overflow-x: clip; }                          /* clip, not hidden */
+
 @media (max-width: 720px){
   .lb-prev, .lb-next { width: 48px; height: 60px; }
   #lb-image { border-radius: 10px; }
