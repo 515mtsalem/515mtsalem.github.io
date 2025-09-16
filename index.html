@@ -707,6 +707,14 @@ html { overflow-x: clip; }                          /* clip, not hidden */
   }, {passive:true});
   lbImg.addEventListener('touchend', () => { startX = null; });
 })();
+
+  (() => {
+  const vw = innerWidth;
+  document.querySelectorAll('body *').forEach(el => {
+    const r = el.getBoundingClientRect();
+    if (r.right - vw > 1) { el.style.outline = '2px solid red'; console.log('OVERFLOW →', el, r.right - vw); }
+  });
+})();
 </script>
 
 
