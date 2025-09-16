@@ -155,7 +155,7 @@ html { overflow-x: clip; }                          /* clip, not hidden */
 </style>
 </head>
 <body>
-  <!--
+  
   <header>
     <div class="wrap brand">
       <h1>515 MT SALEM AVE., WASHINGTON, VA 22747</h1>
@@ -174,10 +174,10 @@ html { overflow-x: clip; }                          /* clip, not hidden */
     </video>
     </div>
   </header>
--->
+
   <main class="wrap">
     
-    <!--
+    
     <div class="hero">
       <div class="card">
         <video controls muted playsinline>
@@ -204,8 +204,7 @@ html { overflow-x: clip; }                          /* clip, not hidden */
         </div>
       </div>
     </div>
-  -->
-  <!--  
+  
     <section id="highlights">
       <h2>Highlights</h2>
       <div class="grid features">
@@ -217,9 +216,7 @@ html { overflow-x: clip; }                          /* clip, not hidden */
         <div class="feature"><strong>Move‑in ready</strong><span class="sub" style="margin-left:8px">clean, bright palette</span></div>
       </div>
     </section>
--->
-    
-<!--
+
     <section id="gallery">
   <h2>Gallery</h2>
   <button id="openGallery" class="gallery-launch" aria-label="Open photo gallery">
@@ -227,9 +224,7 @@ html { overflow-x: clip; }                          /* clip, not hidden */
     <span class="gallery-badge">View All Photos</span>
   </button>
 </section>
--->
-    
-<!--
+
 <section id="video">
   <h2>Video Tour</h2>
   <div class="video-grid">
@@ -331,7 +326,7 @@ html { overflow-x: clip; }                          /* clip, not hidden */
     </video>      
   </div>
 </section>
--->
+
     
     <section id="details">
       <h2>Property Details</h2>
@@ -378,7 +373,7 @@ html { overflow-x: clip; }                          /* clip, not hidden */
     </footer>
   </main>
 
-<!-- Lightbox 
+<!-- Lightbox -->
 <div id="lightbox" role="dialog" aria-modal="true" aria-hidden="true">
   <button class="lb-close" aria-label="Close (Esc)">&times;</button>
   <button class="lb-prev"  aria-label="Previous (←)"></button>
@@ -392,7 +387,7 @@ html { overflow-x: clip; }                          /* clip, not hidden */
     </div>
   </div>
 </div>
--->
+
 
 <script>
 /* === Single Preview + Lazy Lightbox for explicit file list (no deps) ===
@@ -707,14 +702,7 @@ html { overflow-x: clip; }                          /* clip, not hidden */
   }, {passive:true});
   lbImg.addEventListener('touchend', () => { startX = null; });
 })();
-
-  (() => {
-  const vw = innerWidth;
-  document.querySelectorAll('body *').forEach(el => {
-    const r = el.getBoundingClientRect();
-    if (r.right - vw > 1) { el.style.outline = '2px solid red'; console.log('OVERFLOW →', el, r.right - vw); }
-  });
-})();
+  
 </script>
 
 
