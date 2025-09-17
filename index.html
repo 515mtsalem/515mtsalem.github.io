@@ -612,7 +612,7 @@ html { overflow-x: clip; }                          /* clip, not hidden */
   const openBtn  = document.getElementById('openGallery');   // from the single-image preview
   const root     = document.getElementById('lightbox');
   const lbImg    = document.getElementById('lb-image');
-  const lbCap    = document.getElementById('lb-caption');
+  // const lbCap    = document.getElementById('lb-caption');
   const lbCount  = document.getElementById('lb-count');
   const btnClose = root.querySelector('.lb-close');
   const btnPrev  = root.querySelector('.lb-prev');
@@ -647,7 +647,7 @@ html { overflow-x: clip; }                          /* clip, not hidden */
 
     lbImg.src = URLS[idx];
     lbImg.alt = captionFromName(URLS[idx]);
-    lbCap.textContent = captionFromName(URLS[idx]);
+    // lbCap.textContent = captionFromName(URLS[idx]);
     lbCount.textContent = `${idx + 1} / ${TOTAL}`;
 
     // Preload neighbors
