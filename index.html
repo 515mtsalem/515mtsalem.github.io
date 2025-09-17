@@ -156,6 +156,7 @@ html { overflow-x: clip; }                          /* clip, not hidden */
 
 
 .video-wrap {
+  margin: 0 auto;
   position: relative;
   overflow: hidden;           /* prevents any tiny overflow */
 }
@@ -172,7 +173,7 @@ html { overflow-x: clip; }                          /* clip, not hidden */
   position: absolute;
   inset: 0;                   /* cover the video */
   display: flex;              /* layout your text */
-  align-items: flex-end;      /* e.g., bottom-left */
+  align-items: flex-start;      /* e.g., bottom-left */
   padding: 24px;
   color: #fff;
   z-index: 1;
@@ -210,7 +211,7 @@ html { overflow-x: clip; }                          /* clip, not hidden */
   <div class="video-wrap">
     <video src="images/IMG_Hero%20Video.mp4" style="width: 600px;" loop muted autoplay playsinline></video>
     <div class="video-overlay">
-      <h1>515 MT SALEM AVE., WASHINGTON, VA 22747</h2>
+      <h1>515 MT SALEM AVE., WASHINGTON, VA 22747</h1>
       <nav>
         <a style="margin-left: 0px;" href="#gallery">Gallery</a>
         <a href="#video">Video</a>
