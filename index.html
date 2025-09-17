@@ -791,67 +791,6 @@ html { overflow-x: clip; }                          /* clip, not hidden */
   
 </script>
 
-<script>
-(function () {
-  // Capture a frame from a <video> and set it as its poster
-  async function makePosterFromFrame(video, seconds = 0.5) {
-    try {
-      // Ensure we only fetch metadata, not the whole file
-      video.preload = video.preload || 'metadata';
-      video.playsInline = true; // good hygiene on iOS
-
-      // If cross-origin (CDN, different domain), allow canvas draw:
-      const src = video.currentSrc || video.getAttribute('src') || '';
-      if (src) {
-        const url = new URL(src, location.href);
-        if (url.origin !== location.origin && !video.crossOrigin) {
-          video.crossOrigin = 'anonymous'; // your server must send CORS headers
-        }
-      }
-
-      // Wait for metadata so we know duration & dimensions
-      if (video.readyState < 1) {
-        await new Promise(res => video.addEventListener('loadedmetadata', res, { once: true }));
-      }
-
-      // Pick a frame a little after 0s (some videos start on black)
-      const t = Math.min(Math.max(seconds, 0.1), (isFinite(video.duration) ? video.duration : 1) - 0.05);
-
-      // Seek, then wait for the frame to be ready
-      const paused = video.paused;
-      video.muted = true;       // no audio if it briefly ticks
-      video.currentTime = t;
-      await new Promise(res => video.addEventListener('seeked', res, { once: true }));
-
-      // Draw to canvas
-      const w = video.videoWidth  || 1280;
-      const h = video.videoHeight || 720;
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, w, h);
-
-      // Set as poster; then reset time so playback starts at 0 on tap
-      const dataURL = canvas.toDataURL('image/jpeg', 0.82);
-      video.setAttribute('poster', dataURL);
-      video.currentTime = 0;
-      if (paused) video.pause();
-
-    } catch (err) {
-      console.warn('Poster generation failed:', err);
-      // Graceful fallback: neutral background so it’s not a pure black box
-      video.style.background = '#111';
-    }
-  }
-
-  // Apply to all non-autoplay videos without a poster
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('video:not([autoplay]):not([poster])')
-      .forEach(v => makePosterFromFrame(v, 0.5));
-  });
-})();
-</script>
-
 
 
   
