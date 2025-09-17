@@ -157,34 +157,62 @@ html { overflow-x: clip; }                          /* clip, not hidden */
 
 .video-wrap{
   position: relative;
-  /* pick the max width you want; this centers the whole block */
-  max-width: 900px;         /* or 600px to match your inline style */
-  margin: 0 auto;           /* centers horizontally */
+  max-width: 900px;       /* set your desired video width */
+  margin: 0 auto;         /* centers the video block */
 }
 
 .hero-video{
   display: block;
-  width: 100%;              /* fills the wrapper */
+  width: 100%;
   height: auto;
-  border-radius: 12px;      /* optional */
+  border-radius: 12px;
 }
 
+/* Overlay sits over the video, content centered at the TOP */
 .video-overlay{
   position: absolute;
-  inset: 0;                 /* sits over the video */
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;  /* left */
-  justify-content: flex-start; /* TOP */
-  gap: 8px;
-  padding: 16px 20px;
+  inset: 0;
+  display: grid;
+  align-content: start;   /* keep at top */
+  justify-items: center;  /* center horizontally */
+  padding-top: 14px;      /* space from very top edge */
   z-index: 1;
-  pointer-events: auto;     /* links are clickable */
+  pointer-events: none;   /* allow clicks to pass through except the panel */
+  text-align: center;
 }
 
-.video-overlay a{ color:#fff; text-decoration:none; margin-right:18px; }
-.video-overlay a:hover{ text-decoration:underline; }
-.video-overlay h1{ color:#fff; margin:0 0 6px; font-size:clamp(18px, 3vw, 24px); }
+/* The readable panel behind heading+nav */
+.overlay-panel{
+  pointer-events: auto;   /* links clickable */
+  display: inline-flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+
+  /* legibility */
+  color: #fff;
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px); /* Safari */
+
+  /* keep margins off video edges on small screens */
+  max-width: calc(100% - 24px);
+}
+
+.video-overlay h1{
+  margin: 0;
+  font-size: clamp(18px, 2.4vw, 26px);
+  text-shadow: 0 2px 8px rgba(0,0,0,.5);
+}
+
+.video-overlay nav a{
+  color: #fff;
+  text-decoration: none;
+  margin: 0 12px;
+}
+.video-overlay nav a:hover{ text-decoration: underline; }
+
 
   
 @media (max-width: 960px){ .hero{grid-template-columns:1fr} .gallery{grid-template-columns:repeat(2,minmax(0,1fr))} .two{grid-template-columns:1fr} }
@@ -213,8 +241,10 @@ html { overflow-x: clip; }                          /* clip, not hidden */
   -->
 
   <div class="video-wrap">
-    <video class="hero-video" src="images/IMG_Hero%20Video.mp4" autoplay muted loop playsinline></video>
-    <div class="video-overlay">
+  <video class="hero-video" src="images/IMG_Hero%20Video.mp4" autoplay muted loop playsinline></video>
+
+  <div class="video-overlay">
+    <div class="overlay-panel">
       <h1>515 MT SALEM AVE., WASHINGTON, VA 22747</h1>
       <nav>
         <a style="margin-left:0" href="#gallery">Gallery</a>
@@ -224,6 +254,8 @@ html { overflow-x: clip; }                          /* clip, not hidden */
       </nav>
     </div>
   </div>
+</div>
+
   
   <main class="wrap">
     
