@@ -213,7 +213,12 @@ html { overflow-x: clip; }                          /* clip, not hidden */
 }
 .video-overlay nav a:hover{ text-decoration: underline; }
 
-
+@media (min-width: 1024px) {
+  #gallery .gallery-launch {
+    width: 900px;               /* the button/card */
+    max-width: 900px;
+  }
+}
   
 @media (max-width: 960px){ .video-overlay h1{ font-size: 24px; } .hero{grid-template-columns:1fr} .gallery{grid-template-columns:repeat(2,minmax(0,1fr))} .two{grid-template-columns:1fr} }
 </style>
