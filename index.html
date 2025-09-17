@@ -157,7 +157,7 @@ html { overflow-x: clip; }                          /* clip, not hidden */
 
 .video-wrap{
   position: relative;
-  max-width: 900px;       /* set your desired video width */
+  max-width: 1060px;       /* set your desired video width */
   margin: 0 auto;         /* centers the video block */
 }
 
@@ -215,12 +215,12 @@ html { overflow-x: clip; }                          /* clip, not hidden */
 
 @media (min-width: 1024px) {
   #gallery .gallery-launch {
-    width: 900px;               /* the button/card */
-    max-width: 900px;
+    width: 100%;               /* the button/card */
+    max-width: 1060px;
   }
 }
   
-@media (max-width: 960px){ .video-overlay h1{ font-size: 24px; } .overlay-panel{ background: rgba(74,69,66,.90); } .hero{grid-template-columns:1fr} .gallery{grid-template-columns:repeat(2,minmax(0,1fr))} .two{grid-template-columns:1fr} }
+@media (max-width: 960px){ .video-overlay h1{ font-size: 24px; } .sm-mobile { font-size: 18px; } .overlay-panel{ background: rgba(74,69,66,.90); } .hero{grid-template-columns:1fr} .gallery{grid-template-columns:repeat(2,minmax(0,1fr))} .two{grid-template-columns:1fr} }
 </style>
 </head>
 <body>
@@ -228,7 +228,7 @@ html { overflow-x: clip; }                          /* clip, not hidden */
   <!--
   <header>
     <div class="wrap brand">
-      <h1>515 MT SALEM AVE., WASHINGTON, VA 22747</h1>
+      <h1>515 MT SALEM AVE., <span class="sm-mobile">WASHINGTON, VA 22747</span></h1>
       <nav>
         <a style="margin-left: 0px;" href="#gallery">Gallery</a>
         <a href="#video">Video</a>
