@@ -155,13 +155,39 @@ html { overflow-x: clip; }                          /* clip, not hidden */
 }
 
 
+.video-wrap {
+  position: relative;
+  overflow: hidden;           /* prevents any tiny overflow */
+}
 
+.video-wrap video {
+  display: block;
+  width: 100%;
+  height: auto;
+  position: relative;
+  z-index: 0;                 /* make sure it sits under the overlay */
+}
+
+.video-overlay {
+  position: absolute;
+  inset: 0;                   /* cover the video */
+  display: flex;              /* layout your text */
+  align-items: flex-end;      /* e.g., bottom-left */
+  padding: 24px;
+  color: #fff;
+  z-index: 1;
+  pointer-events: none;       /* so video controls still clickable; remove if you need clicks on text */
+  /* readability helper: */
+  background: linear-gradient(to top, rgba(0,0,0,.35), rgba(0,0,0,0) 40%);
+}
+.video-overlay h1, .video-overlay p { margin: 0; text-shadow: 0 2px 8px rgba(0,0,0,.5); }
   
 @media (max-width: 960px){ .hero{grid-template-columns:1fr} .gallery{grid-template-columns:repeat(2,minmax(0,1fr))} .two{grid-template-columns:1fr} }
 </style>
 </head>
 <body>
-  
+
+  <!--
   <header>
     <div class="wrap brand">
       <h1>515 MT SALEM AVE., WASHINGTON, VA 22747</h1>
@@ -179,7 +205,21 @@ html { overflow-x: clip; }                          /* clip, not hidden */
     </video>
     </div>
   </header>
+  -->
 
+  <div class="video-wrap">
+    <video src="images/IMG_Hero%20Video.mp4" style="width: 360px;" loop muted autoplay playsinline></video>
+    <div class="video-overlay">
+      <h1>515 MT SALEM AVE., WASHINGTON, VA 22747</h2>
+      <nav>
+        <a style="margin-left: 0px;" href="#gallery">Gallery</a>
+        <a href="#video">Video</a>
+        <a href="#details">Details</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </div>
+  
   <main class="wrap">
     
     <!--
